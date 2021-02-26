@@ -10,17 +10,55 @@ class MoviesController < ApplicationController
   def index
    @all_ratings = Movie.all_ratings
    @ratings_to_show = []
-    
-    
-    
+   puts @ratings_to_show
+
+  
+   if session[:'ratings'] != nil
+     if params[:'ratings'] == nil
+       if params[:commit] == nil and session[:ratings].empty? != true
+        params[:'ratings'] = session['ratings']
+        
+        session[:ratings]={}
+       end
+     end
+   end
+   
+    if session[:'sortVar'] != nil
+     if params[:'sortVar'] == nil
+       
+        params[:'sortVar'] = session['sortVar']
+        
+        session[:sortVar]={}
+      
+     end
+    end
+     
+   
+   @sortVariable = params[:sortVar]
+   
+   puts params
+   puts 'seperating comment'
+   puts session
+   
     if params[:'ratings'].nil? == true #ratings is empty, no more work needs to be done.
       @movies = Movie.all
+      session[:ratings]={}
+      puts @sortVariable
+    
     end
     
     if params[:'ratings'].nil? == false
       @ratings_to_show =params[:'ratings'].keys
-    
       @movies = Movie.where(rating: @ratings_to_show)
+      session[:ratings]= Hash[@ratings_to_show.map{|x| [x,1]}]
+      session[:sortVar] = @sortVariable
+    end
+      
+    if @sortVariable.nil? == false
+      @movies = @movies.order(@sortVariable)
+      session[:sortVar] = @sortVariable
+      
+      
     end 
     
     
